@@ -16,7 +16,7 @@
         $count = mysqli_num_rows($result);  
           
         if($count == 1){  
-            echo "<h1><center> Login successful </center></h1>";  
+            header("Location:admin.php");  
         }  
         else{  
             header("Location:demo.php?error=1");

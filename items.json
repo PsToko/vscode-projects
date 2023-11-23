@@ -1,0 +1,33 @@
+{
+
+    "food": [
+        {
+            "type": "dairy",
+            "item": "milk",
+            "brand": "Proto"
+        
+        },
+        {
+            "type": "wheat",
+            "item": "bread",
+            "brand": "Stergiou"
+        }
+
+
+    ],
+
+    "pharmacies": [
+        {
+            "type": "first aids",
+            "item": "sticking plaster",
+            "brand": "hansablast"
+            
+        },
+        {
+            "type": "pharmacies",
+            "item": "painkiller",
+            "brand": "depon"
+        }
+    ]
+
+}
