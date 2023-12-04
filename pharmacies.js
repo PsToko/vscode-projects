@@ -9,8 +9,8 @@ fetch("items.json")
 
     // Display pharmacy items
     if (data.pharmacies) {
+
       for (let pharmacy of data.pharmacies) {
-        delete data.pharmacies[0].item;
         out += `
           <tr>
             <td>${pharmacy.type}</td>
