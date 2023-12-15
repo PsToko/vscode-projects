@@ -25,11 +25,16 @@ $count = mysqli_num_rows($result);
 // Check if the user is an admin, rescuer, or citizen based on their ID
 if ($count == 1) {
     // User found in any of the tables
+    session_start();
+    $_SESSION['user_id'] = $row['id'];
     if (!empty($row['adm_id'])) {
+        $_SESSION['user_role'] = 'admin';
         header("Location: admin.php");
     } elseif (!empty($row['res_id'])) {
+        $_SESSION['user_role'] = 'rescuer';
         header("Location: rescuer.php");
     } elseif (!empty($row['cit_id'])) {
+        $_SESSION['user_role'] = 'citizen';
         header("Location: citizen.php");
     }
 } else {

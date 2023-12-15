@@ -23,7 +23,10 @@
 
             <?php
               if(isset($_GET['error'])==true){
-                 echo '<font colour="#FF0000"><p align="center">Invalid username/password</p></font>';
+                   echo '<font colour="#FF0000"><p align="center">Invalid username/password</p></font>';
+                }
+              if(isset($_GET['block'])==true){
+                   echo '<font colour="#FF0000"><p align="center">You need to connect to have the access</p></font>';
                 }
             ?>
 
