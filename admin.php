@@ -30,6 +30,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
         <h1>&nbsp; &nbsp; &nbsp; &nbsp; What do you want to see?<br></br><br></br><br></br><br></h1>
         <button onclick="window.location.href = 'pharmacies.php';">Pharmacies</button>
         <button onclick="window.location.href = 'food.php';">Food</button>
+        <button onclick="window.location.href = 'res_register.php';">Register a Rescuer</button>
+
     </table>
 </body>
 </html>
