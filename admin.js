@@ -1,37 +1,29 @@
-
 function addFood() {
   const newType = document.getElementById('newType').value;
   const newItem = document.getElementById('newItem').value;
   const newBrand = document.getElementById('newBrand').value;
 
   if (newType && newItem && newBrand) {
-    const storedData = localStorage.getItem('foodData');
-    const data = storedData ? JSON.parse(storedData) : { food: [] };
+    const formData = new FormData();
+    formData.append('action', 'addFood');
+    formData.append('type', newType);
+    formData.append('item', newItem);
+    formData.append('brand', newBrand);
 
-    data.food.push({ type: newType, item: newItem, brand: newBrand });
-
-    localStorage.setItem('foodData', JSON.stringify(data));
-    refreshData(data);
+    sendRequest(formData);
   } else {
     alert('Please fill in all fields.');
   }
 }
 
 function deleteFood(type, item, brand) {
-  const storedData = localStorage.getItem('foodData');
-  const data = storedData ? JSON.parse(storedData) : { food: [] };
+  const formData = new FormData();
+  formData.append('action', 'deleteFood');
+  formData.append('type', type);
+  formData.append('item', item);
+  formData.append('brand', brand);
 
-  const indexToDelete = data.food.findIndex(food => (
-    food.type === type &&
-    food.item === item &&
-    food.brand === brand
-  ));
-
-  if (indexToDelete !== -1) {
-    data.food.splice(indexToDelete, 1);
-    localStorage.setItem('foodData', JSON.stringify(data));
-    refreshData(data);
-  }
+  sendRequest(formData);
 }
 
 function editFood(type, item, brand) {
@@ -40,31 +32,46 @@ function editFood(type, item, brand) {
   const newBrand = prompt('Enter new brand:', brand);
 
   if (newType !== null && newItem !== null && newBrand !== null) {
-    const storedData = localStorage.getItem('foodData');
-    const data = storedData ? JSON.parse(storedData) : { food: [] };
+    const formData = new FormData();
+    formData.append('action', 'editFood');
+    formData.append('type', type);
+    formData.append('item', item);
+    formData.append('brand', brand);
+    formData.append('newType', newType);
+    formData.append('newItem', newItem);
+    formData.append('newBrand', newBrand);
 
-    const indexToEdit = data.food.findIndex(food => (
-      food.type === type &&
-      food.item === item &&
-      food.brand === brand
-    ));
-
-    if (indexToEdit !== -1) {
-      data.food[indexToEdit] = { type: newType, item: newItem, brand: newBrand };
-      localStorage.setItem('foodData', JSON.stringify(data));
-      refreshData(data);
-    }
+    sendRequest(formData);
   }
 }
 
-function main() {
-  const storedData = localStorage.getItem('foodData');
-  const data = storedData ? JSON.parse(storedData) : { food: [] };
-
-  refreshData(data);
+function sendRequest(formData) {
+  // Make an AJAX request to handle the form data on the server
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', 'update.php', true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      // Update the HTML content on success
+      fetchAndDisplayData();
+    }
+  };
+  xhr.send(formData);
 }
 
-function refreshData(data) {
+function fetchAndDisplayData() {
+  // Fetch and display items.json
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', 'items.json', true);
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      var jsonData = JSON.parse(xhr.responseText);
+      displayData(jsonData);
+    }
+  };
+  xhr.send();
+}
+
+function displayData(data) {
   let placeholder = document.querySelector("#data-output");
   let out = "";
 
@@ -85,4 +92,8 @@ function refreshData(data) {
   }
 
   placeholder.innerHTML = out;
+}
+
+function main() {
+  fetchAndDisplayData();
 }

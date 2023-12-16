@@ -32,7 +32,28 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
       </tr>
     </thead>
     <tbody id="data-output">
-      <!-- Products from the JavaScript file will be inserted here -->
+      <!-- Products from the PHP file will be inserted here -->
+      <?php
+      // Read the JSON file and display the items
+      $jsonFile = 'items.json';
+      $jsonData = file_get_contents($jsonFile);
+      $data = json_decode($jsonData, true);
+
+      if (isset($data['food'])) {
+          foreach ($data['food'] as $food) {
+              echo "
+              <tr>
+                <td>{$food['type']}</td>
+                <td>{$food['item']}</td>
+                <td>{$food['brand']}</td>
+                <td>
+                  <button onclick=\"deleteFood('{$food['type']}', '{$food['item']}', '{$food['brand']}')\">Delete</button>
+                  <button onclick=\"editFood('{$food['type']}', '{$food['item']}', '{$food['brand']}')\">Edit</button>
+                </td>
+              </tr>";
+          }
+      }
+      ?>
     </tbody>
     <tr>
       <td><input type="text" id="newType" placeholder="Type"></td>
@@ -43,7 +64,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     <button onclick="window.location.href = 'admin.php';">GO BACK</button>
   </table>
 
-  <script src="admin.js"></script>
+  <script src="admin.js?v=1"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       main();

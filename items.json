@@ -1,27 +1,66 @@
 {
-
     "food": [
         {
             "type": "dairy",
             "item": "milk",
             "brand": "Proto"
-        
         },
         {
             "type": "wheat",
             "item": "bread",
             "brand": "Stergiou"
+        },
+        {
+            "type": "kkk",
+            "item": "kkk",
+            "brand": "kkk"
+        },
+        {
+            "type": "kkk",
+            "item": "kkk",
+            "brand": "kkk"
+        },
+        {
+            "type": "kkk",
+            "item": "kkk",
+            "brand": "kkk"
+        },
+        {
+            "type": "po",
+            "item": "po",
+            "brand": "po"
+        },
+        {
+            "type": "boo",
+            "item": "lil",
+            "brand": "barty"
+        },
+        {
+            "type": "big",
+            "item": "drip",
+            "brand": "fivio"
+        },
+        {
+            "type": "condoms",
+            "item": "kapotes",
+            "brand": "durex"
+        },
+        {
+            "type": "real",
+            "item": "time",
+            "brand": "?"
+        },
+        {
+            "type": "realest",
+            "item": "time",
+            "brand": "?"
         }
-
-
     ],
-
     "pharmacies": [
         {
             "type": "first aids",
             "item": "sticking plaster",
             "brand": "hansablast"
-            
         },
         {
             "type": "pharmacies",
@@ -29,5 +68,4 @@
             "brand": "depon"
         }
     ]
-
 }
