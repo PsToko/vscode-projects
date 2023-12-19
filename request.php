@@ -32,7 +32,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'citizen') {
         <button type="button" onclick="submitRequest()">Submit Request</button>
     </form>
 
-    <script src="food.js"></script>
+    <script src="admin.js"></script>
     <script src="request.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {

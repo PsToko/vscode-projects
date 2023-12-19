@@ -1,71 +1,49 @@
 {
-    "food": [
+    "items": [
         {
-            "type": "dairy",
-            "item": "milk",
-            "brand": "Proto"
+            "id": "6580dfa30669b",
+            "name": "oiu",
+            "category": "g",
+            "details": [
+                {
+                    "detail_name": "oiu",
+                    "detail_value": "oiu"
+                }
+            ]
         },
         {
-            "type": "wheat",
-            "item": "bread",
-            "brand": "Stergiou"
+            "id": "6580dfdee6688",
+            "name": null,
+            "category": null,
+            "details": [
+                {
+                    "detail_name": "rty",
+                    "detail_value": "rtyr"
+                }
+            ]
         },
         {
-            "type": "kkk",
-            "item": "kkk",
-            "brand": "kkk"
+            "id": "6580dfe55c546",
+            "name": null,
+            "category": null,
+            "details": [
+                {
+                    "detail_name": "rerte",
+                    "detail_value": "ertetr"
+                }
+            ]
         },
         {
-            "type": "kkk",
-            "item": "kkk",
-            "brand": "kkk"
+            "id": "6580ea33c516b",
+            "name": "7y",
+            "category": "g",
+            "details": []
         },
         {
-            "type": "kkk",
-            "item": "kkk",
-            "brand": "kkk"
-        },
-        {
-            "type": "po",
-            "item": "po",
-            "brand": "po"
-        },
-        {
-            "type": "boo",
-            "item": "lil",
-            "brand": "barty"
-        },
-        {
-            "type": "big",
-            "item": "drip",
-            "brand": "fivio"
-        },
-        {
-            "type": "condoms",
-            "item": "kapotes",
-            "brand": "durex"
-        },
-        {
-            "type": "real",
-            "item": "time",
-            "brand": "?"
-        },
-        {
-            "type": "realest",
-            "item": "time",
-            "brand": "?"
-        }
-    ],
-    "pharmacies": [
-        {
-            "type": "first aids",
-            "item": "sticking plaster",
-            "brand": "hansablast"
-        },
-        {
-            "type": "pharmacies",
-            "item": "painkiller",
-            "brand": "depon"
+            "id": "6580ea4587ffd",
+            "name": "78y7",
+            "category": "pap",
+            "details": []
         }
     ]
 }

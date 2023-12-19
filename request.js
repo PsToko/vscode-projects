@@ -1,3 +1,16 @@
+// requests.js
+
+document.addEventListener("DOMContentLoaded", function() {
+    main(); // Load items from local storage
+    populateDropdown(); // Populate the dropdown with items
+});
+
+function main() {
+    const storedData = localStorage.getItem('foodData');
+    const data = storedData ? JSON.parse(storedData) : { food: [] };
+    refreshData(data);
+}
+
 function populateDropdown() {
     const storedData = localStorage.getItem('foodData');
     const data = storedData ? JSON.parse(storedData) : { food: [] };
@@ -33,4 +46,3 @@ function submitRequest() {
     };
     xhr.send("type=" + type + "&item=" + item + "&brand=" + brand + "&numPeople=" + numPeople);
 }
-
