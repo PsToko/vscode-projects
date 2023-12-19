@@ -132,58 +132,13 @@ function removeItemFromDOM(itemId) {
   }
 }
 
-function addItem() {
-  var name = document.getElementById('newName').value;
-  var category = document.getElementById('newCategory').value;
-
-  // Create an array to store details
-  var details = [];
-
-  // Loop through existing details divs and populate the details array
-  var detailDivs = document.querySelectorAll('#details-container div');
-  detailDivs.forEach(function (detailDiv) {
-    var detailName = detailDiv.dataset.detailName;
-    var detailValue = detailDiv.dataset.detailValue;
-    details.push({ detail_name: detailName, detail_value: detailValue });
-  });
-
-  var data = {
-    action: 'addItem',
-    newName: name,
-    newCategory: category,
-    details: details
-  };
-
-  // Use fetch to send data to the server
-  fetch('update.php', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data),
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      alert('Item added successfully!');
-      // Clear the input fields and details container
-      document.getElementById('newName').value = '';
-      document.getElementById('newCategory').value = '';
-      document.getElementById('details-container').innerHTML = '';
-      // Refresh the data on the page
-      loadData();
-    } else {
-      alert('Failed to add item. Please try again.');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    alert('An error occurred. Please try again.');
-  });
-}
-
 // Declare a global array to store details
 var detailsArray = [];
+
+document.addEventListener("DOMContentLoaded", function () {
+  main();
+  loadCategories();
+});
 
 function addDetail() {
   // Get input values
@@ -192,13 +147,16 @@ function addDetail() {
 
   // Create a new detail object
   var newDetail = {
-      "detail_name": detailName,
-      "detail_value": detailValue
+    detail_name: detailName,
+    detail_value: detailValue,
   };
+
+  // Add the new detail to the detailsArray
+  detailsArray.push(newDetail);
 
   // Add the new detail to the details-container
   var detailsContainer = document.getElementById("details-container");
-  
+
   // Create a new div element to hold the detail information
   var detailDiv = document.createElement("div");
   detailDiv.innerHTML = `${detailName}: ${detailValue}`;
@@ -209,19 +167,60 @@ function addDetail() {
   // Clear the input fields
   document.getElementById("newDetailName").value = "";
   document.getElementById("newDetailValue").value = "";
-
-  // Store the details in a hidden input field (for submission)
-  storeDetails(newDetail);
 }
 
-// Function to store details in the global array
+function addItem() {
+  var name = document.getElementById("newName").value;
+  var category = document.getElementById("newCategory").value;
+
+  // Get details from the global array
+  var details = detailsArray;
+
+  var data = {
+    action: "addItem",
+    newName: name,
+    newCategory: category,
+    details: details,
+  };
+
+  // Use fetch to send data to the server
+  fetch("update.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert("Item added successfully!");
+        // Optionally, you can reset the form or perform other actions
+        // Clear the details array after adding the item
+        detailsArray = [];
+        // Clear the input fields
+        document.getElementById("newName").value = "";
+        document.getElementById("newCategory").value = "";
+        document.getElementById("details-container").innerHTML = "";
+        document.getElementById("newDetailName").value = "";
+        document.getElementById("newDetailValue").value = "";
+        // Refresh the data on the page
+        loadData();
+      } else {
+        alert("Failed to add item. Please try again.");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("An error occurred. Please try again.");
+    });
+}
+
+// Function to store details in the detailsArray
 function storeDetails(newDetail) {
-  // Add the new detail to the global detailsArray
   detailsArray.push(newDetail);
-
-  // Update the hidden input field value with the serialized detailsArray
-  document.getElementById("hiddenDetailsInput").value = JSON.stringify(detailsArray);
 }
+
 
 // Function to remove a dynamically added detail
 function removeDetail(button) {

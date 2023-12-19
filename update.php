@@ -56,7 +56,7 @@ function addItem($postData) {
         'id' => $id,
         'name' => $name,
         'category' => $category,
-        'details' => $details
+        'details' => $details  // Include the details field in the new item
     ];
 
     // Read the existing items from items.json
@@ -78,6 +78,7 @@ function addItem($postData) {
     // Return a success response or handle as needed
     echo json_encode(['success' => true, 'id' => $id]);
 }
+
 
 
 function updateItemCategories() {
