@@ -184,11 +184,11 @@ $allCategories = array_unique(array_merge($categories, $categoriesFromJson));
   </div>
 
   <script src="admin.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      main();
-      loadCategories(); 
-    });    
+  <script>      
+      document.addEventListener("DOMContentLoaded", function () {
+        main();
+        loadCategories();
+      });
   </script>
 </body>
 </html>

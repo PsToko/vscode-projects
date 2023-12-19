@@ -135,6 +135,7 @@ function removeItemFromDOM(itemId) {
 // Declare a global array to store details
 var detailsArray = [];
 
+
 document.addEventListener("DOMContentLoaded", function () {
   main();
   loadCategories();
@@ -152,7 +153,7 @@ function addDetail() {
   };
 
   // Add the new detail to the detailsArray
-  detailsArray.push(newDetail);
+  storeDetails(newDetail);
 
   // Add the new detail to the details-container
   var detailsContainer = document.getElementById("details-container");
@@ -160,6 +161,12 @@ function addDetail() {
   // Create a new div element to hold the detail information
   var detailDiv = document.createElement("div");
   detailDiv.innerHTML = `${detailName}: ${detailValue}`;
+  var removeButton = document.createElement("button");
+  removeButton.textContent = "Remove";
+  removeButton.onclick = function() {
+    removeDetail(removeButton);
+  };
+  detailDiv.appendChild(removeButton);
 
   // Append the detailDiv to the detailsContainer
   detailsContainer.appendChild(detailDiv);
