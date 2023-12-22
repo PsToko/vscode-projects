@@ -1,5 +1,5 @@
 <?php
-// admin.php
+
 include 'access.php';
 
 // Start the session
