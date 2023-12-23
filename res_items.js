@@ -258,59 +258,107 @@ function saveTransferData(transferData) {
     });
 }
 
-
 document.getElementById('transferButton').addEventListener('click', function () {
     var selectedItems = document.querySelectorAll('.admin-checkbox:checked');
     var quantityInput = document.getElementById('quantityInput').value;
 
-    var transferData = {
-        items: {}, // Replace selectedItems with items
-    };
-
-    var itemsProcessed = 0;
-
-    selectedItems.forEach(function (checkbox) {
-        var itemId = checkbox.getAttribute('data-item-id');
-        var adminItem = adminInventory[itemId];
-        var rescuerItem = {
-            id: adminItem.id,
-            name: adminItem.name,
-            category: adminItem.category,
-            details: [...adminItem.details], // Copy details array to avoid modifying the original
-            rescuerId: adminItem.rescuerId // Include rescuerId
-        };
-
-        // Update quantity in rescuer's inventory
-        var quantityDetail = rescuerItem.details.find(detail => detail.detail_name === 'Quantity');
-        quantityDetail.detail_value = (parseInt(quantityInput)).toString();
-
-        // Add the item to rescuer's inventory with a callback
-        addItemToRescuerInventory(itemId, rescuerItem, function (error) {
-            itemsProcessed++;
-
-            if (error) {
-                console.error('Error processing item:', error);
-            }
-
-            // Create a simplified object for the selected item
-            var simplifiedItem = {
-                id: rescuerItem.id,
-                name: rescuerItem.name,
-                category: rescuerItem.category,
-                details: rescuerItem.details,
-                rescuerId: rescuerItem.rescuerId // Include rescuerId
+    // Fetch items.json
+    fetch('items.json')
+        .then(response => response.json())
+        .then(itemsData => {
+            var transferData = {
+                items: {}, // Replace selectedItems with items
             };
 
-            // Add the simplified item to items
-            transferData.items[itemId] = simplifiedItem;
+            var itemsProcessed = 0;
 
-            // If all items are processed, save transfer data
-            if (itemsProcessed === selectedItems.length) {
-                saveTransferData(transferData);
-                console.log('okkk');
-            } else {
-                console.error('Invalid format');
-            }
-        });
-    });
+            selectedItems.forEach(function (checkbox) {
+                var itemId = checkbox.getAttribute('data-item-id');
+                var adminItem = itemsData.items[itemId];
+
+                // Check if adminItem is defined
+                if (adminItem) {
+                    // Update quantity in admin's inventory
+                    var quantityDetailAdmin = adminItem.details.find(detail => detail.detail_name === 'Quantity');
+                    var currentQuantityAdmin = parseInt(quantityDetailAdmin.detail_value);
+
+                    // Check if the current quantity is sufficient for admin
+                    if (currentQuantityAdmin >= quantityInput) {
+                        // Subtract the chosen quantity for admin
+                        var newQuantityForAdmin = currentQuantityAdmin - parseInt(quantityInput);
+                        quantityDetailAdmin.detail_value = newQuantityForAdmin.toString();
+
+                        // RescuerItem should be defined here
+                        var rescuerItem = {
+                            id: adminItem.id,
+                            name: adminItem.name,
+                            category: adminItem.category,
+                            details: [...adminItem.details], // Copy details array to avoid modifying the original
+                            rescuerId: adminItem.rescuerId, // Include rescuerId
+                        };
+
+                        // Add the item to transfer data
+                        transferData.items[itemId] = {
+                            id: rescuerItem.id,
+                            name: rescuerItem.name,
+                            category: rescuerItem.category,
+                            details: rescuerItem.details,
+                            rescuerId: rescuerItem.rescuerId,
+                            quantityTaken: parseInt(quantityInput),
+                        };
+
+                        // Add the item to rescuer's inventory with a callback
+                        addItemToRescuerInventory(itemId, rescuerItem, function (error) {
+                            itemsProcessed++;
+
+                            if (error) {
+                                console.error('Error processing item:', error);
+                            }
+
+                            // Create a simplified object for the selected item
+                            var simplifiedItem = {
+                                id: rescuerItem.id,
+                                name: rescuerItem.name,
+                                category: rescuerItem.category,
+                                details: rescuerItem.details,
+                                rescuerId: rescuerItem.rescuerId // Include rescuerId
+                            };
+
+                            // Add the simplified item to items
+                            transferData.items[itemId] = simplifiedItem;
+
+                            // If all items are processed, save transfer data
+                            if (itemsProcessed === selectedItems.length) {
+                                // Save the updated content back to items.json
+                                saveItemsJson(itemsData);
+                                saveTransferData(transferData);
+                                console.log('Transfer data saved successfully');
+                            } else {
+                                console.error('Invalid format');
+                            }
+                        });
+                    } else {
+                        console.error('Insufficient quantity for item with ID:', itemId);
+                    }
+                } else {
+                    console.error('Item not found in items.json with id:', itemId);
+                }
+            });
+        })
+        .catch(error => console.error('Error loading items.json:', error));
 });
+
+function saveItemsJson(content) {
+    fetch('update_items.php', { // Replace 'update_items.php' with your server-side script to update items.json
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(content),
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Items.json saved successfully:', data);
+        })
+        .catch(error => console.error('Failed to save items.json:', error));
+}
