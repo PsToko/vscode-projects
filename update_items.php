@@ -26,14 +26,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(['error' => 'Method Not Allowed']);
 }
 
-// Function to update items.json
+// Function to update items.json without merging
 function updateItemsJson($data) {
     $filePath = 'items.json';
 
     // Encode the new data as JSON
     $jsonContent = json_encode($data, JSON_PRETTY_PRINT);
 
-    // Save the updated content back to items.json
+    // Save the updated content back to items.json, overwriting the existing content
     file_put_contents($filePath, $jsonContent);
 }
 
