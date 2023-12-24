@@ -136,8 +136,19 @@ $resultRescuers->close();
         });
 
         // Display marker for the admin
-        var adminMarker = L.marker([<?php echo $adminMarker['adm_lat']; ?>, <?php echo $adminMarker['adm_lng']; ?>], { draggable: true }).addTo(map);
-        adminMarker.bindPopup("Admin's marker.");
+        var adminMarker = L.marker([<?php echo $adminMarker['adm_lat']; ?>, <?php echo $adminMarker['adm_lng']; ?>], {
+        draggable: false,
+        icon: L.icon({
+            iconUrl: 'https://toppng.com/uploads/preview/map-point-google-map-marker-gif-11562858751s4qufnxuml.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            tooltipAnchor: [16, -28],
+            shadowSize: [41, 41]
+        })
+    }).addTo(map);
+    adminMarker.bindPopup("Admin's marker.");
+
 
         var wasDragged = false;
 
@@ -162,7 +173,7 @@ $resultRescuers->close();
             }
         }
 
-                function updateMarkerPosition(marker, lat, lng) {
+        function updateMarkerPosition(marker, lat, lng) {
             // Use the same fetch API to update the marker position
             fetch('map_greece.php', {
                 method: 'POST',
@@ -206,7 +217,6 @@ $resultRescuers->close();
                 }
             });
         }
-
 
         document.getElementById('changeLocation').addEventListener('click', changeLocation);
     </script>

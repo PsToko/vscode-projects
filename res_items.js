@@ -179,30 +179,67 @@ function saveRescuerInventoryToLocal() {
 }
 
 
-// Function to load rescuer's inventory from localStorage
 function loadRescuerInventoryFromLocal() {
     var storedRescuerInventory = localStorage.getItem('rescuerInventory');
     return storedRescuerInventory ? JSON.parse(storedRescuerInventory) : {};
 }
 
 function fetchRescuerInventory() {
+    // Dynamically fetch the connected user ID
+    var connectedUserId;
+
     $.ajax({
-        url: 'res_inv.php',
+        url: 'get_rescuer_id.php', // Adjust the URL based on your server setup
         type: 'GET',
-        dataType: 'json',
-        success: function (rescuerInventory) {
-            console.log('Parsed Rescuer Inventory:', rescuerInventory);
-            displayRescuerInventory(rescuerInventory);
+        success: function (response) {
+            connectedUserId = response;
+            console.log(response);
+
+            // AJAX request to distance.php with the dynamically fetched user ID
+            $.ajax({
+                type: "$_SESSION",
+                url: "distance.php",
+                data: { connectedUserId: connectedUserId },
+                success: function (response) {
+                    // Handle the response from PHP
+                    console.log(response);
+
+                    // Fetch rescuer's inventory only if the distance calculation is successful
+                    if (response === "Rescuer is close to Admin.Rescuer is close to Admin.") {
+                        $.ajax({
+                            url: 'res_inv.php',
+                            type: 'GET',
+                            dataType: 'json',
+                            success: function (rescuerInventory) {
+                                console.log('Parsed Rescuer Inventory:', rescuerInventory);
+                                displayRescuerInventory(rescuerInventory);
+                            },
+                            error: function (status, error) {
+                                console.error('Failed to fetch rescuer inventory:', status, error);
+                                displayRescuerInventory();  // Display an empty inventory or handle the error as needed
+                            }
+                        });
+                    } else {
+                        console.error('Distance is too far from 100 meters');
+                        // Handle the case when distance calculation fails
+                    }
+                },
+                error: function (error) {
+                    // Handle errors, if any
+                    console.error("Error:", error);
+                    // Handle the case when there's an error in the AJAX request
+                }
+            });
         },
-        error: function (status, error) {
-            console.error('Failed to fetch rescuer inventory:', status, error);
-            displayRescuerInventory();  // Display an empty inventory or handle the error as needed
+        error: function (xhr, status, error) {
+            console.error('Failed to fetch connected user ID:', status, error);
         }
     });
 }
 
 
 fetchRescuerInventory();
+
 
 function displayRescuerInventory(rescuerInventory) {
     console.log('Rescuer Inventory:', rescuerInventory);
@@ -337,6 +374,7 @@ document.getElementById('transferButton').addEventListener('click', function () 
             });
         })
         .catch(error => console.error('Error loading items.json:', error));
+
 });
 
 function saveItemsJson(content) {
@@ -486,11 +524,6 @@ function transferItemsToAdmin() {
         }
     });
 }
-
-// Handle transferring selected items from rescuer to admin inventory
-document.getElementById('sendButton').addEventListener('click', function () {
-    transferItemsToAdmin();
-});
 
 function saveTransferData(transferData) {
     $.ajax({
