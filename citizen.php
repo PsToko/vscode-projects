@@ -1,5 +1,4 @@
 <?php
-// admin.php
 include 'access.php';
 
 // Start the session
@@ -28,6 +27,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'citizen') {
    <table>
    <h1>Do you want to do a request?</h1>
    <button onclick="window.location.href = 'request.php';">Request</button>   
+   <button onclick="window.location.href = 'cit_ann.php';">See Annoucements</button>   
    </table>
  
 </html>
