@@ -47,38 +47,60 @@ function displayAdminInventory() {
     });
 }
 
-// Function to add an item to rescuer's inventory
 function addItemToRescuerInventory(itemId, item, callback) {
-    // Fetch the rescuerId (user ID) from the server using AJAX
+    // Fetch the rescuerId from the server
     $.ajax({
         url: 'get_rescuer_id.php',
         type: 'GET',
-        dataType: 'text',
         success: function (rescuerId) {
-            // Convert the response to an integer
             rescuerId = parseInt(rescuerId);
 
             // Check if rescuerId is a valid number
             if (!isNaN(rescuerId)) {
-                // Append rescuerId (user ID) to the item
+                // Append rescuerId to each item in the inventory
                 item.rescuerId = rescuerId;
 
-                // Modify the structure of rescuerItem to match the desired format
-                var rescuerItem = {
-                    [itemId]: {
+                // Fetch the existing rescuerInventory from local storage
+                var existingRescuerInventory = loadRescuerInventoryFromLocal();
+
+                // Check if rescuerInventory.items already exists in the existingRescuerInventory
+                if (!existingRescuerInventory.items) {
+                    // If not, initialize it as an empty object
+                    existingRescuerInventory.items = {};
+                }
+
+                // Check if the item already exists in rescuer's inventory
+                if (!existingRescuerInventory.items[itemId]) {
+                    // If it doesn't exist, add a new item
+                    existingRescuerInventory.items[itemId] = {
                         id: item.id,
                         name: item.name,
                         category: item.category,
                         details: item.details,
                         rescuerId: rescuerId
+                    };
+                } else {
+                    // If the item already exists, add the transferred quantity to the existing item
+                    var existingItem = existingRescuerInventory.items[itemId];
+
+                    // Find the Quantity detail in the existing item and the transferred item
+                    var quantityDetailExisting = existingItem.details.find(detail => detail.detail_name === 'Quantity');
+                    var quantityDetailTransferred = item.details.find(detail => detail.detail_name === 'Quantity');
+
+                    // Create a new Quantity detail in the existing item if it doesn't exist
+                    if (!quantityDetailExisting) {
+                        existingItem.details.push({
+                            detail_name: 'Quantity',
+                            detail_value: quantityDetailTransferred.detail_value
+                        });
+                    } else {
+                        // Add the transferred quantity to the existing quantity
+                        quantityDetailExisting.detail_value = (parseInt(quantityDetailExisting.detail_value) + parseInt(quantityDetailTransferred.detail_value)).toString();
                     }
-                };
+                }
 
-                // Merge the item into the rescuer's inventory
-                rescuerInventory.items = Object.assign({}, rescuerInventory.items, rescuerItem);
-
-                // Save the rescuer's inventory to localStorage
-                localStorage.setItem('rescuerInventory', JSON.stringify(rescuerInventory));
+                // Save the updated rescuer's inventory back to local storage
+                localStorage.setItem('rescuerInventory', JSON.stringify(existingRescuerInventory));
 
                 // Call the callback function (if provided)
                 if (typeof callback === 'function') {
@@ -90,94 +112,11 @@ function addItemToRescuerInventory(itemId, item, callback) {
             }
         },
         error: function (xhr, status, error) {
-            // Handle the case when the user ID is not available or there's an error
-            console.error('Failed to fetch user ID:', status, error);
-        }
-    });
-}
-
-
-// Function to update the item structure and save it to rescuer.json
-function updateItemStructureAndSave(item, rescuerId) {
-    // Fetch the current content of rescuer.json
-    $.ajax({
-        url: 'rescuer.json',
-        type: 'GET',
-        dataType: 'json',
-        success: function (rescuerJsonContent) {
-            // Check if rescuerJsonContent is a valid object
-            if (rescuerJsonContent && typeof rescuerJsonContent === 'object') {
-                // Update the item structure with rescuerId
-                item.rescuerId = rescuerId;
-
-                // Add or update the item in the rescuerJsonContent
-                rescuerJsonContent.items = rescuerJsonContent.items || {}; // Create 'items' property if not exists
-                rescuerJsonContent.items[item.id] = item;
-
-                // Save the updated rescuer.json content
-                saveRescuerJson(rescuerJsonContent);
-            } else {
-                // Handle the case when rescuerJsonContent is not a valid object
-                console.error('Invalid rescuer.json content:', rescuerJsonContent);
-            }
-        },
-        error: function (xhr, status, error) {
-            // Handle the case when rescuer.json cannot be fetched
-            console.error('Failed to fetch rescuer.json:', status, error);
-        }
-    });
-}
-
-// Function to save the updated rescuer.json content using jQuery AJAX
-function saveRescuerJson(content) {
-    $.ajax({
-        url: 'res_inv.php',
-        type: 'POST',
-        contentType: 'application/json;charset=UTF-8',
-        data: JSON.stringify(content),
-        success: function () {
-            // Handle success
-            console.log('Rescuer.json saved successfully');
-        },
-        error: function (xhr, status, error) {
-            // Handle errors
-            console.error('Failed to save rescuer.json:', status, error);
-        }
-    });
-}
-
-
-// Function to save rescuer's inventory to localStorage
-function saveRescuerInventoryToLocal() {
-    // Fetch the rescuerId from the server
-    $.ajax({
-        url: 'get_rescuer_id.php',
-        type: 'GET',
-        success: function (rescuerId) {
-            rescuerId = parseInt(rescuerId);
-
-            // Append rescuerId to each item in the inventory
-            for (var itemId in rescuerInventory.items) {
-                if (rescuerInventory.items.hasOwnProperty(itemId)) {
-                    rescuerInventory.items[itemId].rescuerId = rescuerId;
-                }
-            }
-
-            // Save the rescuer's inventory to localStorage
-            localStorage.setItem('rescuerInventory', JSON.stringify(rescuerInventory));
-
-            // Optionally, save the rescuer's ID to localStorage as well
-            localStorage.setItem('rescuerId', rescuerId);
-
-            console.log('Rescuer Inventory saved to localStorage:', rescuerInventory);
-        },
-        error: function (status, error) {
             // Handle the case when the rescuer ID is not available or there's an error
             console.error('Failed to fetch rescuer ID:', status, error);
         }
     });
 }
-
 
 function loadRescuerInventoryFromLocal() {
     var storedRescuerInventory = localStorage.getItem('rescuerInventory');
@@ -290,12 +229,15 @@ document.getElementById('transferButton').addEventListener('click', function () 
     var selectedItems = document.querySelectorAll('.admin-checkbox:checked');
     var quantityInput = document.getElementById('quantityInput').value;
 
+    console.log('Inside displayAdminInventory', adminInventory);
+    console.log('Inside addItemToRescuerInventory', rescuerInventory);
+
     // Fetch items.json
     fetch('items.json')
         .then(response => response.json())
         .then(itemsData => {
             var transferData = {
-                items: {}, // Replace selectedItems with items
+                items: {},
             };
 
             var itemsProcessed = 0;
@@ -321,7 +263,17 @@ document.getElementById('transferButton').addEventListener('click', function () 
                             id: adminItem.id,
                             name: adminItem.name,
                             category: adminItem.category,
-                            details: [...adminItem.details], // Copy details array to avoid modifying the original
+                            details: adminItem.details.map(detail => {
+                                if (detail.detail_name === 'Quantity') {
+                                    return {
+                                        detail_name: 'Quantity',
+                                        detail_value: parseInt(quantityInput),
+                                    };
+                                } else {
+                                    // Copy other details unchanged
+                                    return { ...detail };
+                                }
+                            }),
                             rescuerId: adminItem.rescuerId, // Include rescuerId
                         };
 
@@ -374,8 +326,8 @@ document.getElementById('transferButton').addEventListener('click', function () 
             });
         })
         .catch(error => console.error('Error loading items.json:', error));
-
 });
+
 
 function saveItemsJson(content) {
     fetch('update_items.php', { // Replace 'update_items.php' with your server-side script to update items.json
@@ -425,100 +377,33 @@ function sendItemsToAdmin() {
                 name: rescuerItem.name,
                 category: rescuerItem.category,
                 details: [...rescuerItem.details], // Copy details array to avoid modifying the original
-                rescuerId: rescuerItem.rescuerId, // Include rescuerId
-            };
-
-            // Add the item to transfer data
-            transferData.items[itemId] = {
-                id: adminItem.id,
-                name: adminItem.name,
-                category: adminItem.category,
-                details: adminItem.details,
-                rescuerId: adminItem.rescuerId,
-                quantityReturned: parseInt(quantityInput),
+                adminId: rescuerItem.adminId, // Include adminId
             };
 
             // Update the item in admin's inventory
-            updateAdminInventory(itemId, adminItem);
+            updateAdminInventory(itemId, adminItem, function (error) {
+                itemsProcessed++;
 
-            itemsProcessed++;
+                if (error) {
+                    console.error('Error updating item in admin inventory:', error);
+                }
 
-            // If all items are processed, save transfer data
-            if (itemsProcessed === selectedItems.length) {
-                saveTransferData(transferData);
-                console.log('Transfer data saved successfully');
-            }
-        } else {
-            console.error('Item not found in rescuer inventory with id:', itemId);
-        }
-    });
-}
+                // If all items are processed, save transfer data
+                if (itemsProcessed === selectedItems.length) {
+                    // Add the item to transfer data
+                    transferData.items[itemId] = {
+                        id: adminItem.id,
+                        name: adminItem.name,
+                        category: adminItem.category,
+                        details: adminItem.details,
+                        adminId: adminItem.adminId,
+                        quantityReturned: parseInt(quantityInput),
+                    };
 
-function transferItemsToAdmin() {
-    var selectedItems = document.querySelectorAll('.rescuer-checkbox:checked');
-    var quantityInput = document.getElementById('transferQuantityInput').value;
-
-    // Fetch rescuer's inventory from localStorage
-    var rescuerInventory = loadRescuerInventoryFromLocal();
-
-    var transferData = {
-        items: {},
-    };
-
-    var itemsProcessed = 0;
-
-    selectedItems.forEach(function (checkbox) {
-        var itemId = checkbox.getAttribute('data-item-id');
-        var rescuerItem = rescuerInventory.items[itemId];
-
-        // Check if rescuerItem is defined
-        if (rescuerItem) {
-            // Update quantity in rescuer's inventory
-            var quantityDetailRescuer = rescuerItem.details.find(detail => detail.detail_name === 'Quantity');
-            var currentQuantityRescuer = parseInt(quantityDetailRescuer.detail_value);
-
-            // Check if the current quantity is sufficient for rescuer
-            if (currentQuantityRescuer >= quantityInput) {
-                // Subtract the chosen quantity for rescuer
-                var newQuantityForRescuer = currentQuantityRescuer - parseInt(quantityInput);
-                quantityDetailRescuer.detail_value = newQuantityForRescuer.toString();
-
-                // AdminItem should be defined here
-                var adminItem = {
-                    id: rescuerItem.id,
-                    name: rescuerItem.name,
-                    category: rescuerItem.category,
-                    details: [...rescuerItem.details], // Copy details array to avoid modifying the original
-                    adminId: rescuerItem.adminId, // Include adminId
-                };
-
-                // Add the item to transfer data
-                transferData.items[itemId] = {
-                    id: adminItem.id,
-                    name: adminItem.name,
-                    category: adminItem.category,
-                    details: adminItem.details,
-                    adminId: adminItem.adminId,
-                    quantityReceived: parseInt(quantityInput),
-                };
-
-                // Update the item in admin's inventory
-                updateAdminInventory(itemId, adminItem, function (error) {
-                    itemsProcessed++;
-
-                    if (error) {
-                        console.error('Error updating item in admin inventory:', error);
-                    }
-
-                    // If all items are processed, save transfer data
-                    if (itemsProcessed === selectedItems.length) {
-                        saveTransferData(transferData);
-                        console.log('Transfer data saved successfully');
-                    }
-                });
-            } else {
-                console.error('Insufficient quantity for item with ID:', itemId);
-            }
+                    saveTransferData(transferData);
+                    console.log('Transfer data saved successfully');
+                }
+            });
         } else {
             console.error('Item not found in rescuer inventory with id:', itemId);
         }
@@ -544,7 +429,7 @@ function saveTransferData(transferData) {
 function updateAdminInventory(itemId, item, callback) {
     // Fetch the adminId (user ID) from the server using AJAX
     $.ajax({
-        url: 'get_rescuer_id.php', // Replace with the actual URL to fetch admin ID
+        url: 'get_admin_id.php', // Replace with the actual URL to fetch admin ID
         type: 'GET',
         dataType: 'text',
         success: function (adminId) {
@@ -588,6 +473,7 @@ function updateAdminInventory(itemId, item, callback) {
         }
     });
 }
+
 
 // Handle sending selected items to admin inventory
 document.getElementById('sendButton').addEventListener('click', function () {

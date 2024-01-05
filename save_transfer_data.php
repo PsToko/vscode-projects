@@ -32,15 +32,11 @@ function saveTransferData($transferData) {
     // Extract relevant data from $transferData
     $quantityInput = $transferData['quantityInput'];
     $selectedItems = $transferData['selectedItems'];
+    $rescuerId = $transferData['rescuerId'];
 
-    // Perform actions to save transfer data to the desired location
-    // For example, you can save it to a database, a file, or perform other operations
-
-    // Example: Save data to a file (you might need to adjust the file path)
     $filePath = 'rescuer.json';
     file_put_contents($filePath, json_encode($transferData));
 
-    // Note: Adjust this logic based on your specific requirements
 }
 
 ?>
